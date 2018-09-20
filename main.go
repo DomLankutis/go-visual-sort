@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	arr = genListToSort(nil, nil, nil)
-	colMap = genColorMap(colornames.White)
+	arr = genArrayToSort(nil, nil, nil)
+	colMap = genColorMap(colornames.Grey)
 )
 
 var (
@@ -23,7 +23,7 @@ var (
 func draw(win *pixelgl.Window, cfg *pixelgl.WindowConfig, imd *imdraw.IMDraw, arr *[]float64, colors *colorMap) {
 	win.Clear(colornames.Black)
 	imd.Clear()
-	genDrawableList(cfg, imd, *arr, colors)
+	genDrawableArray(cfg, imd, *arr, colors)
 	imd.Draw(win)
 	win.Update()
 	frames++
@@ -48,14 +48,23 @@ func update() {
 	}
 
 	imd := imdraw.New(nil)
-
 	for !win.Closed() {
 		for j := 0; j == 0; j--{
-			arr = genListToSort(win, &cfg, imd)
+			arr = genArrayToSort(win, &cfg, imd)
+			mergeSort(win, &cfg, imd, arr, 0, len(arr) - 1)
+			<-second
+
+			arr = genArrayToSort(win, &cfg, imd)
+			quickSort(win, &cfg, imd, arr,0, len(arr) - 1)
+			<-second
+
+			arr = genArrayToSort(win, &cfg, imd)
 			insertionSort(win, imd, &cfg, arr)
 			<-second
-			arr = genListToSort(win, &cfg, imd)
+
+			arr = genArrayToSort(win, &cfg, imd)
 			bubbleSort(win, imd, &cfg, arr)
+			<-second
 
 		}
 		win.Update()
