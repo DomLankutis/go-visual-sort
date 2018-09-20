@@ -13,13 +13,18 @@ import (
 type colorMap struct {
 	def			color.RGBA
 	special 	map[int]color.RGBA
+	highlight 	map[int]color.RGBA
 }
 
 func (c *colorMap) clear() {
 	c.special = map[int]color.RGBA{}
 }
 
-func genListToSort(win *pixelgl.Window, cfg *pixelgl.WindowConfig, imd *imdraw.IMDraw) []float64 {
+func (c *colorMap) clearHighlight() {
+	c.highlight = map[int]color.RGBA{}
+}
+
+func genArrayToSort(win *pixelgl.Window, cfg *pixelgl.WindowConfig, imd *imdraw.IMDraw) []float64 {
 	n := 360
 	radd := (2 * math.Pi) / float64(n)
 	limit := time.Tick(time.Second / 120)
@@ -41,17 +46,19 @@ func genListToSort(win *pixelgl.Window, cfg *pixelgl.WindowConfig, imd *imdraw.I
 }
 
 func genColorMap(def color.RGBA) colorMap {
-	return colorMap{def, make(map[int]color.RGBA)}
+	return colorMap{def, make(map[int]color.RGBA), make(map[int]color.RGBA)}
 }
 
-func genDrawableList(cfg *pixelgl.WindowConfig, imd *imdraw.IMDraw, arr []float64, colors *colorMap) {
+func genDrawableArray(cfg *pixelgl.WindowConfig, imd *imdraw.IMDraw, arr []float64, colors *colorMap) {
 	midPoint := cfg.Bounds.Center()
 	centerGap := cfg.Bounds.Size().Y / 100 * math.Sqrt(float64(len(arr)))
 	thickness := cfg.Bounds.Size().Y / 100 / math.Sqrt(float64(len(arr)) / 5)
 	for i, rad := range arr {
 		barLength := rad * cfg.Bounds.Size().Y / math.Sqrt(float64(len(arr)))
-		if color, ok := colors.special[i]; ok {
-			imd.Color = color
+		if specialColor, ok := colors.special[i]; ok {
+			imd.Color = specialColor
+		}else if highlightColor, ok := colors.highlight[i]; ok {
+			imd.Color = highlightColor
 		}else {
 			imd.Color = colors.def
 		}
@@ -70,3 +77,20 @@ func genDrawableList(cfg *pixelgl.WindowConfig, imd *imdraw.IMDraw, arr []float6
 	}
 }
 
+//func genDrawableArray(cfg *pixelgl.WindowConfig, imd *imdraw.IMDraw, arr []float64, colors *colorMap) {
+//	thickness := cfg.Bounds.Size().X / float64(len(arr))
+//	for i, val := range arr {
+//		height := cfg.Bounds.Size().Y / (math.Pi * val)
+//		if specialColor, ok := colors.special[i]; ok {
+//			imd.Color = specialColor
+//		}else if highlightColor, ok := colors.highlight[i]; ok {
+//			imd.Color = highlightColor
+//		}else {
+//			imd.Color = colors.def
+//		}
+//		p1 := pixel.V(float64(i) * thickness, 0)
+//		p2 := pixel.V(float64(i) * thickness, height)
+//		imd.Push(p1, p2)
+//		imd.Line(thickness)
+//	}
+//}
